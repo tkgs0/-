@@ -11,16 +11,16 @@ from pathlib import Path
 
 
 # 文件目录
-dirPath: str = "./人教版2019/数学B/必修4"
+dirPath: str = "./人教版2019/数学B/选择性必修1"
 
 # 页数
-pages: int = 142
+pages: int = 192
 
 # 文件名
 fileName: str = "{i}.jpg"
 
 # 文件链接
-url: str = "https://book.pep.com.cn/1421001137201/files/mobile/{i}.jpg"
+url: str = "https://book.pep.com.cn/1421001127202/files/mobile/{i}.jpg"
 
 # 请求参数
 params: dict = {}
