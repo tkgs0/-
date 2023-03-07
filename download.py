@@ -3,24 +3,38 @@
 
 """
 环境要求: Python3.8 以上
-安装依赖: pip install -U httpx tqdm
+安装依赖: pip install -U httpx rich
 """
 
-import asyncio, httpx
 from pathlib import Path
+import asyncio, httpx
+from rich.progress import (
+    BarColumn,
+    DownloadColumn,
+    Progress,
+    TextColumn,
+    TransferSpeedColumn,
+)
 
 
 # 文件目录
-dirPath: str = "./人教版2019/数学B/选择性必修1"
+dirPath: str = "./人教版2019/数学B/选择性必修2"
 
 # 页数
-pages: int = 192
+pages: int = 140
 
-# 文件名
-fileName: str = "{i}.jpg"
+# 文件列表
+# 格式:
+"""
+  文件名   URL
+  文件名1  URL
+  文件名2  URL
+"""
+fileList: str = """
 
-# 文件链接
-url: str = "https://book.pep.com.cn/1421001127202/files/mobile/{i}.jpg"
+{i}.jpg   https://book.pep.com.cn/1421001128202/files/mobile/{i}.jpg
+
+""".strip()
 
 # 请求参数
 params: dict = {}
@@ -36,33 +50,73 @@ cookies: dict = {}
 # 超时期限 (秒)
 timeout: int = 120
 
+# 并发数量
+semaphore: int = 16
 
-async def dload(sem, name: str, fileurl: str) -> None:
+
+async def run() -> None:
+    if not fileList:
+        return
+    down: list = []
+    sem = asyncio.Semaphore(semaphore)
+    for x in range(pages):
+        filename, url = fileList.format(i=x+1).split()
+        down.append(dload(sem=sem, url=url, filename=filename))
+    with progress:
+        await asyncio.gather(*down)
+    progress.console.log("执行完毕.")
+
+
+progress = Progress(
+    TextColumn("[bold blue]{task.fields[filename]}", justify="right"),
+    BarColumn(bar_width=None),
+    "[progress.percentage]{task.percentage:>3.1f}%",
+    "•",
+    DownloadColumn(),
+    "•",
+    TransferSpeedColumn(),
+)
+
+
+async def dload(sem, url: str, filename: str) -> None:
+
+    # 文件路径
     filePath: Path = (
-        Path(dirPath.strip()) / name.strip()
+        Path(dirPath.strip()) / filename.strip()
         if dirPath.strip()
-        else Path(__file__) / name.strip()
+        else Path(__file__) / filename.strip()
     )
     filePath.parent.mkdir(parents=True, exist_ok=True)
-    async with sem:
+
+    async with sem:  # 限制并发
+
         async with httpx.AsyncClient().stream(
-            'GET', url=fileurl.strip(),
+            'GET', url=url.strip(),
             params=params, headers=headers, cookies=cookies,
             follow_redirects=True,
             timeout=timeout,
         ) as resp:
-            with open(filePath, 'wb') as fd:
+
+            total = resp.headers.get("Content-Length")
+
+            task_id = progress.add_task(  # 进度条
+                "download",
+                start=True,
+                total=int(total) if total else None,
+                filename=filename,
+            )
+            with open(filePath, 'wb') as fd:  # 写入文件
                 async for chunk in resp.aiter_bytes(1024):
                     fd.write(chunk)
-    print(f"{name}: Done.")
+                    progress.update(
+                        task_id,
+                        advance=len(chunk),
+                    )
 
+            if resp.status_code != 200:
+                progress.console.log(f"{filename}: {resp.status_code}")
 
-async def run() -> None:
-    down: list = []
-    sem = asyncio.Semaphore(5)
-    for x in range(pages):
-        down.append(dload(sem, fileName.format(i=x+1), url.format(i=x+1)))
-    await asyncio.gather(*down)
+            await asyncio.to_thread(progress.remove_task, task_id)
 
 
 if __name__ == '__main__':
