@@ -18,10 +18,10 @@ from rich.progress import (
 
 
 # 文件目录
-dirPath: str = "./人教版2019/数学B/选修A_概率与统计"
+dirPath: str = "./人教版2019/数学_选修/A_空间向量与代数"
 
 # 页数
-pages: int = 142
+pages: int = 144
 
 # 文件列表
 # 格式:
@@ -32,7 +32,7 @@ pages: int = 142
 """
 fileList: str = """
 
-{i}.jpg   https://book.pep.com.cn/1421001138231/files/mobile/{i}.jpg
+{i}.jpg   https://book.pep.com.cn/1421001138232/files/mobile/{i}.jpg
 
 """.strip()
 
