@@ -18,10 +18,10 @@ from rich.progress import (
 
 
 # 文件目录
-dirPath: str = "./人教版2019/数学_选修/C_逻辑推理初步"
+dirPath: str = "./人教版2019/数学_选修/C_社会调查与数据分析"
 
 # 页数
-pages: int = 118
+pages: int = 186
 
 # 文件列表
 # 格式:
@@ -32,7 +32,7 @@ pages: int = 118
 """
 fileList: str = """
 
-{i}.jpg   https://book.pep.com.cn/1421001138238/files/mobile/{i}.jpg
+{i}.jpg   https://book.pep.com.cn/1421001138239/files/mobile/{i}.jpg
 
 """.strip()
 
