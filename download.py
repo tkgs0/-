@@ -18,10 +18,10 @@ from rich.progress import (
 
 
 # 文件目录
-dirPath: str = "./人教版2019/数学_选修/B_微积分"
+dirPath: str = "./人教版2019/数学_选修/C_逻辑推理初步"
 
 # 页数
-pages: int = 92
+pages: int = 118
 
 # 文件列表
 # 格式:
@@ -32,7 +32,7 @@ pages: int = 92
 """
 fileList: str = """
 
-{i}.jpg   https://book.pep.com.cn/1421001138237/files/mobile/{i}.jpg
+{i}.jpg   https://book.pep.com.cn/1421001138238/files/mobile/{i}.jpg
 
 """.strip()
 
