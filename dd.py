@@ -18,10 +18,10 @@ from rich.progress import (
 
 
 # 文件目录
-dirPath: str = "./人教版2019/数学_选修/C_数学模型"
+dirPath: str = "./人教版2019/数学_选修/D_美与数学"
 
 # 页数
-pages: int = 134
+pages: int = 88
 
 # 文件列表
 # 格式:
@@ -32,7 +32,7 @@ pages: int = 134
 """
 fileList: str = """
 
-{i}.jpg   https://book.pep.com.cn/1421001238231/files/mobile/{i}.jpg
+{i}.jpg   https://book.pep.com.cn/1421001238232/files/mobile/{i}.jpg
 
 """.strip()
 
@@ -84,7 +84,7 @@ async def dload(sem, url: str, filename: str) -> None:
     filePath: Path = (
         Path(dirPath.strip()) / filename.strip()
         if dirPath.strip()
-        else Path(__file__) / filename.strip()
+        else Path(filename.strip())
     )
     filePath.parent.mkdir(parents=True, exist_ok=True)
 
@@ -96,6 +96,9 @@ async def dload(sem, url: str, filename: str) -> None:
             follow_redirects=True,
             timeout=timeout,
         ) as resp:
+            if resp.status_code != 200:
+                progress.console.log(f"{filename}: {resp.status_code}")
+                return
 
             total = resp.headers.get("Content-Length")
 
@@ -112,9 +115,6 @@ async def dload(sem, url: str, filename: str) -> None:
                         task_id,
                         advance=len(chunk),
                     )
-
-            if resp.status_code != 200:
-                progress.console.log(f"{filename}: {resp.status_code}")
 
             await asyncio.to_thread(progress.remove_task, task_id)
 
